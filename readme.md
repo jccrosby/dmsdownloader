@@ -1,5 +1,7 @@
 # DMSDownloader
+
 John Crosby
+
 <http://about.me/jccrosby>
 
 Adobe AIR/Flex based application to download the images from <http://dailymugshot.com>.
@@ -16,4 +18,5 @@ None
 
 ## License
 [This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 Unported License.](http://creativecommons.org/licenses/by-sa/3.0/) 
+
 ![Creative Commons Attribution-ShareAlike 3.0 Unported License.](http://i.creativecommons.org/l/by-sa/3.0/88x31.png) 
