@@ -1,0 +1,14 @@
+## generic files to ignore
+*~
+*.lock
+*.DS_Store
+*.swp
+*.out
+
+## Flash Buidler Project
+.actionScriptProperties
+.flexProperties
+.project
+.settings/*
+bin-debug/*
+bin-release/*

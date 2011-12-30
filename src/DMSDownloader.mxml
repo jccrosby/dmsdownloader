@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009"
+					   xmlns:s="library://ns.adobe.com/flex/spark"
+					   xmlns:mx="library://ns.adobe.com/flex/mx"
+					   width="625" height="415" minWidth="625" minHeight="415" maxWidth="625" maxHeight="415"
+					   backgroundColor="#deebff" chromeColor="#deebff"
+					   creationComplete="onCreationComplete( event )">
+	<fx:Style source="DMSDownloader.css"/>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.jccrosby.dmsdownloader.DMSManager;
+			import com.jccrosby.dmsdownloader.ImageSaver;
+			import com.jccrosby.dmsdownloader.events.DMSDownloadEvent;
+			import com.jccrosby.dmsdownloader.model.DMSModel;
+			
+			import mx.events.FlexEvent;
+			
+			static public const SERVICE_URL:String = "http://www.dailymugshot.com/openapis/get_sequence?userid=";
+			
+			private var _dmsLoader:DMSManager;
+			private var _imageSaver:ImageSaver;
+			private var _savePath:File;
+			private var _dmsModel:DMSModel;
+			
+			protected function onCreationComplete( event:FlexEvent ):void
+			{
+				_dmsLoader = new DMSManager( SERVICE_URL );
+				_dmsLoader.addEventListener( DMSDownloadEvent.SERVICE_DOWNLOAD_COMPLETE, onDMSServiceDownloadComplete );
+				
+				_imageSaver = new ImageSaver();
+				_imageSaver.addEventListener( DMSDownloadEvent.DOWNLOADING_IMAGE, onDownloadingImage );
+				_imageSaver.addEventListener( DMSDownloadEvent.IMAGE_SAVED, onImageSaved );
+			}
+			
+			protected function onClickSetSavePath( event :MouseEvent):void
+			{
+				var file:File = new File();
+				file.browseForDirectory( "Select Directory to Save to" );
+				file.addEventListener( Event.SELECT, onSavePathSelected );
+			}
+			
+			protected function onSavePathSelected( event:Event ):void
+			{
+				_savePath = File( event.target );
+				fileSavePath_txt.text = _savePath.nativePath;
+			}
+			
+			protected function onClickDownload( event:MouseEvent ):void
+			{
+				_imageSaver.saveDirectory = _savePath;
+				_dmsLoader.downloadImages( userID_txt.text );
+			}
+
+			protected function onDMSServiceDownloadComplete( event:DMSDownloadEvent ):void
+			{
+				_dmsModel = event.dmsModel;
+				downloadCount_lbl.text = "Downloading " + _dmsModel.dmsImages.length + " images.";
+				// TODO: Download the images
+				_imageSaver.downloadImages( event.dmsModel );
+				
+			}
+
+			protected function onDownloadingImage( event:DMSDownloadEvent ):void
+			{
+				//trace( "Downloading...", event.dmsFile.created );
+			}
+
+			protected function onImageSaved( event:DMSDownloadEvent ):void
+			{
+				//trace( "Image saved...", event.dmsFile.file.name );
+				downloadCount_lbl.text = "Downloading " + _dmsModel.dmsImages.length + " images.";
+				dmsImage.source = event.dmsFile.byteData;
+				
+				event.dmsFile.dispose();
+			}
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<s:VGroup id="formContainer" left="9" top="42" width="386" height="343">
+		<s:Label fontWeight="bold"
+				 text="Enter your user id."/>
+		<s:Label fontSize="10" fontStyle="italic" fontWeight="normal"
+				 text="(You can find this in the URL of your mugshow.)"/>		
+		<s:HGroup width="100%" verticalAlign="middle">
+			<s:Label text="User ID:" verticalAlign="middle"/>	
+			<s:TextInput id="userID_txt" width="72"/>
+		</s:HGroup>
+		
+		<s:Spacer width="10" height="25"/>
+		<s:Label fontWeight="bold" text="Select a directory to save the files to."/>
+		<s:Button id="savePath_btn" label="Set Save Path" 
+				  click="onClickSetSavePath( event )"/>
+		
+		<s:Label fontWeight="bold" text="Files will be saved to:"/>
+		<mx:Text id="fileSavePath_txt" enabled="false" width="{formContainer.width}" height="100%" />	
+		
+		<s:Spacer width="10" height="100%"/>
+		<s:Label id="downloadCount_lbl" width="100%" textAlign="center" verticalAlign="middle"/>
+		<s:Button id="download_btn" width="100%" height="85" label="DOWNLOAD"
+				  click="onClickDownload( event )" fontSize="30"
+				  fontWeight="bold"/>
+	</s:VGroup>
+	
+	<s:Label x="10" y="10" fontSize="24" fontWeight="bold" text="DMS Downloader"/>
+	<s:Image id="dmsImage" right="10" top="19" width="200" height="200"/>
+	<s:Image id="logo" right="10" bottom="50" height="128" source="assets/images/icon-128x128.png"/>
+	<s:Label right="10" bottom="22" fontSize="9" fontStyle="italic"
+			 text="The DMS Downloader is not affiliated&#xd;with www.dailymugshot.com."
+			 textAlign="right" verticalAlign="justify"/>
+	
+</s:WindowedApplication>
